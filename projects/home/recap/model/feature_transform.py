@@ -110,9 +110,7 @@ class DoubleNormLog(torch.nn.Module):
   ) -> torch.Tensor:
     x = self._before_concat_layers(continuous_features)
     x = torch.cat([x, binary_features], dim=1)
-    if self.layer_norm:
-      return self.layer_norm(x)
-    return x
+    return self.layer_norm(x) if self.layer_norm else x
 
 
 def build_features_preprocessor(

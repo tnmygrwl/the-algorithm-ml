@@ -73,12 +73,14 @@ class MultiTaskRankingModel(torch.nn.Module):
 
       self.embeddings = LargeEmbeddings(large_embeddings_config=config.large_embeddings)
 
-      embedding_dims += sum([table.embedding_dim for table in config.large_embeddings.tables])
+      embedding_dims += sum(table.embedding_dim
+                            for table in config.large_embeddings.tables)
       logging.info(f"Emb dim: {embedding_dims}")
 
     if config.small_embeddings:
       self.small_embeddings = SmallEmbedding(config.small_embeddings)
-      embedding_dims += sum([table.embedding_dim for table in config.small_embeddings.tables])
+      embedding_dims += sum(table.embedding_dim
+                            for table in config.small_embeddings.tables)
       logging.info(f"Emb dim (with small embeddings): {embedding_dims}")
 
     if "user_embedding" in data_config.seg_dense_schema.renamed_features:
@@ -211,7 +213,8 @@ class MultiTaskRankingModel(torch.nn.Module):
         )
       concat_dense_features.append(self.position_debias_model(discrete_features))
 
-    if discrete_features is not None and not (self.position_debias_model or self.small_embeddings):
+    if (discrete_features is not None and not self.position_debias_model
+        and not self.small_embeddings):
       logging.warning("Forward arg discrete_features is passed, but never used.")
 
     concat_dense_features = torch.cat(concat_dense_features, dim=1)
@@ -273,11 +276,6 @@ def create_ranking_model(
 
   if list(config.model.tasks.values())[0].dlrm_config:
     raise NotImplementedError()
-    model = EmbeddingRankingModel(
-      input_shapes=data_spec,
-      config=all_config.model,
-      data_config=all_config.train_data,
-    )
   else:
     model = MultiTaskRankingModel(
       input_shapes=data_spec,

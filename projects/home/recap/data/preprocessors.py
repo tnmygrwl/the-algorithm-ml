@@ -185,7 +185,7 @@ def build_preprocess(preprocess_config, mode=config_mod.JobMode.TRAIN):
   if preprocess_config.extract_features:
     preprocess_models.append(ExtractFeatures(preprocess_config.extract_features))
 
-  if len(preprocess_models) == 0:
+  if not preprocess_models:
     raise ValueError("No known preprocessor.")
 
   class PreprocessModel(tf.keras.Model):

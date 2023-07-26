@@ -39,29 +39,35 @@ def twhin_model_config() -> TwhinModelConfig:
     tables=[table0, table1],
   )
 
-  model_config = TwhinModelConfig(
-    embeddings=embeddings_config,
-    translation_optimizer=sgd_config_0,
-    relations=[
-      Relation(name="rel0", lhs="table0", rhs="table1", operator=Operator.TRANSLATION),
-      Relation(name="rel1", lhs="table1", rhs="table0", operator=Operator.TRANSLATION),
-    ],
+  return TwhinModelConfig(
+      embeddings=embeddings_config,
+      translation_optimizer=sgd_config_0,
+      relations=[
+          Relation(
+              name="rel0",
+              lhs="table0",
+              rhs="table1",
+              operator=Operator.TRANSLATION,
+          ),
+          Relation(
+              name="rel1",
+              lhs="table1",
+              rhs="table0",
+              operator=Operator.TRANSLATION,
+          ),
+      ],
   )
-
-  return model_config
 
 
 def twhin_data_config() -> TwhinDataConfig:
-  data_config = TwhinDataConfig(
-    data_root="/",
-    per_replica_batch_size=10,
-    global_negatives=10,
-    in_batch_negatives=10,
-    limit=1,
-    offset=1,
+  return TwhinDataConfig(
+      data_root="/",
+      per_replica_batch_size=10,
+      global_negatives=10,
+      in_batch_negatives=10,
+      limit=1,
+      offset=1,
   )
-
-  return data_config
 
 
 def test_twhin_model():

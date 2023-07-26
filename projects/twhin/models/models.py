@@ -83,9 +83,7 @@ class TwhinModel(nn.Module):
         negs_rhs = torch.flatten(torch.matmul(lhs_matrix, sampled_rhs.t()))
         negs_lhs = torch.flatten(torch.matmul(rhs_matrix, sampled_lhs.t()))
 
-        negs.append(negs_lhs)
-        negs.append(negs_rhs)
-
+        negs.extend((negs_lhs, negs_rhs))
     # dot product for positives
     x = (x[:, 0, :] * translated).sum(-1)
 

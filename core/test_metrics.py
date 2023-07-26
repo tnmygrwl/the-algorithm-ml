@@ -53,13 +53,10 @@ def test_collections():
 def test_task_dependent_ctr():
   num_examples = 144
   batch_size = 1024
-  outputs = [
-    {
+  outputs = [{
       "stuff": 0,
       "labels": torch.arange(0, 6).repeat(batch_size, 1),
-    }
-    for idx in range(num_examples)
-  ]
+  } for _ in range(num_examples)]
 
   for task_idx in range(5):
     metric = core_metrics.Ctr(task_idx=task_idx)
@@ -180,7 +177,7 @@ def test_hit_k():
 
   hit3_metric = core_metrics.HitAtK(3)
   hit3_metric.update(outputs_correct)
-  assert (hit3_metric.compute().item() - 0.66666) < 0.0001
+  assert hit3_metric.compute().item() < 0.66676
 
   hit3_metric.reset()
   hit3_metric.update(outputs_bad)

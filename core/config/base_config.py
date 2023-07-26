@@ -48,7 +48,7 @@ class BaseConfig(pydantic.BaseModel):
     """Validate that all 'one of' fields are appear exactly once."""
     one_of_map = cls._field_data_map("one_of")
     for one_of, field_names in one_of_map.items():
-      if sum([values.get(n, None) is not None for n in field_names]) != 1:
+      if sum(values.get(n, None) is not None for n in field_names) != 1:
         raise ValueError(f"Exactly one of {','.join(field_names)} required.")
     return values
 
@@ -57,7 +57,7 @@ class BaseConfig(pydantic.BaseModel):
     """Validate that all 'at_most_one_of' fields appear at most once."""
     at_most_one_of_map = cls._field_data_map("at_most_one_of")
     for one_of, field_names in at_most_one_of_map.items():
-      if sum([values.get(n, None) is not None for n in field_names]) > 1:
+      if sum(values.get(n, None) is not None for n in field_names) > 1:
         raise ValueError(f"At most one of {','.join(field_names)} can be set.")
     return values
 

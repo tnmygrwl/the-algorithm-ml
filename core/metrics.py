@@ -85,11 +85,11 @@ class Auc(StratifyMixin, TaskMixin, MetricMixin, tm.MeanMetric):
     scores, labels = outputs["logits"], outputs["labels"]
     pos_scores = scores[labels == 1]
     neg_scores = scores[labels == 0]
-    result = {
-      "value": pos_scores[torch.randint(len(pos_scores), (self.num_samples,))]
-      > neg_scores[torch.randint(len(neg_scores), (self.num_samples,))]
+    return {
+        "value":
+        pos_scores[torch.randint(len(pos_scores), (self.num_samples, ))] >
+        neg_scores[torch.randint(len(neg_scores), (self.num_samples, ))]
     }
-    return result
 
 
 class PosRanks(StratifyMixin, TaskMixin, MetricMixin, tm.MeanMetric):
@@ -106,8 +106,7 @@ class PosRanks(StratifyMixin, TaskMixin, MetricMixin, tm.MeanMetric):
     scores, labels = outputs["logits"], outputs["labels"]
     _, sorted_indices = scores.sort(descending=True)
     pos_ranks = labels[sorted_indices].nonzero(as_tuple=True)[0] + 1  # all ranks start from 1
-    result = {"value": pos_ranks}
-    return result
+    return {"value": pos_ranks}
 
 
 class ReciprocalRank(StratifyMixin, TaskMixin, MetricMixin, tm.MeanMetric):
@@ -124,8 +123,7 @@ class ReciprocalRank(StratifyMixin, TaskMixin, MetricMixin, tm.MeanMetric):
     scores, labels = outputs["logits"], outputs["labels"]
     _, sorted_indices = scores.sort(descending=True)
     pos_ranks = labels[sorted_indices].nonzero(as_tuple=True)[0] + 1  # all ranks start from 1
-    result = {"value": torch.div(torch.ones_like(pos_ranks), pos_ranks)}
-    return result
+    return {"value": torch.div(torch.ones_like(pos_ranks), pos_ranks)}
 
 
 class HitAtK(StratifyMixin, TaskMixin, MetricMixin, tm.MeanMetric):
@@ -144,5 +142,4 @@ class HitAtK(StratifyMixin, TaskMixin, MetricMixin, tm.MeanMetric):
     scores, labels = outputs["logits"], outputs["labels"]
     _, sorted_indices = scores.sort(descending=True)
     pos_ranks = labels[sorted_indices].nonzero(as_tuple=True)[0] + 1  # all ranks start from 1
-    result = {"value": (pos_ranks <= self.k).float()}
-    return result
+    return {"value": (pos_ranks <= self.k).float()}

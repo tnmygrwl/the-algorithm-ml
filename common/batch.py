@@ -17,9 +17,10 @@ class BatchBase(Pipelineable, abc.ABC):
     raise NotImplementedError
 
   def to(self, device: torch.device, non_blocking: bool = False):
-    args = {}
-    for feature_name, feature_value in self.as_dict().items():
-      args[feature_name] = feature_value.to(device=device, non_blocking=non_blocking)
+    args = {
+        feature_name: feature_value.to(device=device, non_blocking=non_blocking)
+        for feature_name, feature_value in self.as_dict().items()
+    }
     return self.__class__(**args)
 
   def record_stream(self, stream: torch.cuda.streams.Stream) -> None:
@@ -27,9 +28,10 @@ class BatchBase(Pipelineable, abc.ABC):
       feature_value.record_stream(stream)
 
   def pin_memory(self):
-    args = {}
-    for feature_name, feature_value in self.as_dict().items():
-      args[feature_name] = feature_value.pin_memory()
+    args = {
+        feature_name: feature_value.pin_memory()
+        for feature_name, feature_value in self.as_dict().items()
+    }
     return self.__class__(**args)
 
   def __repr__(self) -> str:

@@ -121,9 +121,8 @@ def get_seg_dense_parse_fn(data_config: recap_data_config.RecapDataConfig):
   logging.info("***** TF Example Schema *****")
   logging.info(tf_example_schema)
 
-  parse = functools.partial(
-    parse_tf_example,
-    tfe_schema=tf_example_schema,
-    seg_dense_schema_config=data_config.seg_dense_schema,
+  return functools.partial(
+      parse_tf_example,
+      tfe_schema=tf_example_schema,
+      seg_dense_schema_config=data_config.seg_dense_schema,
   )
-  return parse

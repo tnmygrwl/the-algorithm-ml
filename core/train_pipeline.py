@@ -259,10 +259,7 @@ def _start_data_dist(
       if arg_info.input_attrs:
         arg = batch
         for attr, is_getitem in zip(arg_info.input_attrs, arg_info.is_getitems):
-          if is_getitem:
-            arg = arg[attr]
-          else:
-            arg = getattr(arg, attr)
+          arg = arg[attr] if is_getitem else getattr(arg, attr)
         if arg_info.name:
           kwargs[arg_info.name] = arg
         else:
@@ -356,16 +353,11 @@ def _get_unsharded_module_names_helper(
     curr_path = path + name
     if isinstance(child, ShardedModule):
       sharded_children.add(name)
-    else:
-      child_sharded = _get_unsharded_module_names_helper(
-        child,
-        curr_path + ".",
-        unsharded_module_names,
-      )
-      if child_sharded:
-        sharded_children.add(name)
+    elif child_sharded := _get_unsharded_module_names_helper(
+          child, f"{curr_path}.", unsharded_module_names):
+      sharded_children.add(name)
 
-  if len(sharded_children) > 0:
+  if sharded_children:
     for name, _ in model.named_children():
       if name not in sharded_children:
         unsharded_module_names.add(path + name)
@@ -410,11 +402,10 @@ def _rewrite_model(  # noqa C901
   tracer = Tracer(leaf_modules=_get_unsharded_module_names(model))
   graph = tracer.trace(model)
 
-  feature_processor_nodes = []
-  # find the fp node
-  for node in graph.nodes:
-    if node.op == "call_module" and node.target in fp_modules:
-      feature_processor_nodes.append(node)
+  feature_processor_nodes = [
+      node for node in graph.nodes
+      if node.op == "call_module" and node.target in fp_modules
+  ]
   # Select sharded modules, which are top-level in the forward call graph,
   # i.e. which don't have input transformations, i.e.
   # rely only on 'builtins.getattr'.
