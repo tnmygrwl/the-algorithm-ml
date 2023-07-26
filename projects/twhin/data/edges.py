@@ -156,7 +156,7 @@ class EdgesDataset(Dataset):
       self.rel_column_name,
       self.label_column_name,
     ]
-    for _, batch in enumerate(ds):
+    for batch in ds:
       # Pass along positive edges
       lhs = batch.column(self.lhs_column_name)
       rhs = batch.column(self.rhs_column_name)

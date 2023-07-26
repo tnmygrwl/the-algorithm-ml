@@ -178,10 +178,7 @@ def train(
   train_logger = logger_initializer(mode="train") if logger_initializer else None
   train_step_fn = _get_step_fn(train_pipeline, get_new_iterator(dataset), training=True)
 
-  # Counting number of parameters in the model directly when creating it.
-  nb_param = 0
-  for p in model.parameters():
-    nb_param += p.numel()
+  nb_param = sum(p.numel() for p in model.parameters())
   logging.info(f"Model has {nb_param} parameters")
 
   last_time = datetime.datetime.now()
@@ -212,11 +209,9 @@ def train(
         "active_training_walltime": checkpoint_handler.walltime,
       }
       if parameters_to_log:
-        log_values.update(
-          log_weights.weights_to_log(
+        log_values |= log_weights.weights_to_log(
             model=model,
             how_to_log=parameters_to_log,
-          )
         )
       log_values = tree.map_structure(lambda elem: torch.as_tensor(elem).cpu(), log_values)
 
@@ -252,7 +247,7 @@ def train(
   logging.info(f"Finished training steps: {step}, global_steps: {step * dist.get_world_size()}")
 
   if last_pending_snapshot:
-    logging.info(f"Waiting for any checkpoints to finish.")
+    logging.info("Waiting for any checkpoints to finish.")
     last_pending_snapshot.wait()
 
 

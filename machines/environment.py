@@ -20,9 +20,7 @@ def has_readers():
 
 
 def get_task_type():
-  if on_kf():
-    return os.environ["SPEC_TYPE"]
-  return os.environ["TASK_TYPE"]
+  return os.environ["SPEC_TYPE"] if on_kf() else os.environ["TASK_TYPE"]
 
 
 def is_chief() -> bool:
@@ -38,24 +36,20 @@ def is_dispatcher() -> bool:
 
 
 def get_task_index():
-  if on_kf():
-    pod_name = os.environ["MY_POD_NAME"]
-    return int(pod_name.split("-")[-1])
-  else:
+  if not on_kf():
     raise NotImplementedError
+  pod_name = os.environ["MY_POD_NAME"]
+  return int(pod_name.split("-")[-1])
 
 
 def get_reader_port():
-  if on_kf():
-    return KF_DDS_PORT
-  return SLURM_DDS_PORT
+  return KF_DDS_PORT if on_kf() else SLURM_DDS_PORT
 
 
 def get_dds():
   if not has_readers():
     return None
-  dispatcher_address = get_dds_dispatcher_address()
-  if dispatcher_address:
+  if dispatcher_address := get_dds_dispatcher_address():
     return f"grpc://{dispatcher_address}"
   else:
     raise ValueError("Job does not have DDS.")
@@ -94,14 +88,13 @@ def get_num_readers():
 
 
 def get_flight_server_addresses():
-  if on_kf():
-    job_name = os.environ["JOB_NAME"]
-    return [
-      f"grpc://{job_name}-datasetworker-{task_index}:{FLIGHT_SERVER_PORT}"
-      for task_index in range(get_num_readers())
-    ]
-  else:
+  if not on_kf():
     raise NotImplementedError
+  job_name = os.environ["JOB_NAME"]
+  return [
+    f"grpc://{job_name}-datasetworker-{task_index}:{FLIGHT_SERVER_PORT}"
+    for task_index in range(get_num_readers())
+  ]
 
 
 def get_dds_journaling_dir():

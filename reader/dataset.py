@@ -65,8 +65,7 @@ class Dataset(torch.utils.data.IterableDataset):
 
   def _validate_columns(self):
     columns = set(self._dataset_kwargs.get("columns", []))
-    wrong_columns = set(columns) - set(self._schema.names)
-    if wrong_columns:
+    if wrong_columns := set(columns) - set(self._schema.names):
       raise Exception(f"Specified columns {list(wrong_columns)} not in schema.")
 
   def serve(self):

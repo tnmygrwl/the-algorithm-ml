@@ -20,9 +20,9 @@ def _generate_random_example(
   example = {}
   for feature_name, feature_spec in tf_example_schema.items():
     dtype = feature_spec.dtype
-    if (dtype == tf.int64) or (dtype == tf.int32):
+    if dtype in [tf.int64, tf.int32]:
       x = tf.experimental.numpy.random.randint(0, high=10, size=feature_spec.shape, dtype=dtype)
-    elif (dtype == tf.float32) or (dtype == tf.float64):
+    elif dtype in [tf.float32, tf.float64]:
       x = tf.random.uniform(shape=[feature_spec.shape], dtype=dtype)
     else:
       raise NotImplementedError(f"Unknown type {dtype}")
@@ -41,11 +41,11 @@ def _int64_feature(value):
 
 
 def _serialize_example(x: Dict[str, tf.Tensor]) -> bytes:
-  feature = {}
   serializers = {tf.float32: _float_feature, tf.int64: _int64_feature}
-  for feature_name, tensor in x.items():
-    feature[feature_name] = serializers[tensor.dtype](tensor)
-
+  feature = {
+      feature_name: serializers[tensor.dtype](tensor)
+      for feature_name, tensor in x.items()
+  }
   example_proto = tf.train.Example(features=tf.train.Features(feature=feature))
   return example_proto.SerializeToString()
 

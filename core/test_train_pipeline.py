@@ -51,9 +51,7 @@ def test_sparse_pipeline():
       device=device,
       grad_accum=2,
     )
-    for _ in range(steps):
-      results.append(pipeline.progress(dataloader))
-
+    results.extend(pipeline.progress(dataloader) for _ in range(steps))
   results = [elem.detach().numpy() for elem in results]
   # Check gradients are accumulated, i.e. results do not change for every 0th and 1th.
   for first, second in zip(results[::2], results[1::2]):
@@ -83,9 +81,7 @@ def test_amp():
       # Not supported on CPU.
       enable_grad_scaling=False,
     )
-    for _ in range(steps):
-      results.append(pipeline.progress(dataloader))
-
+    results.extend(pipeline.progress(dataloader) for _ in range(steps))
   results = [elem.detach() for elem in results]
   for value in results:
     assert value.dtype == torch.bfloat16

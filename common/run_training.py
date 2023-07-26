@@ -65,7 +65,7 @@ def maybe_run_training(
     # Rejoin all arguments to send back through torchrec
     # this is a temporary measure, will replace the os.system call
     # with torchrun API calls
-    args = list(f"--{key}={val}" for key, val in training_kwargs.items())
+    args = [f"--{key}={val}" for key, val in training_kwargs.items()]
 
     cmd = [
       "--nnodes",

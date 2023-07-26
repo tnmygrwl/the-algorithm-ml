@@ -17,10 +17,9 @@ TRANSLATION_OPT_KEY = "operator_opt"
 def _lr_from_config(optimizer_config):
   if optimizer_config.learning_rate is not None:
     return optimizer_config.learning_rate
-  else:
-    # treat None as constant lr
-    lr_value = get_optimizer_algorithm_config(optimizer_config).lr
-    return LearningRate(constant=lr_value)
+  # treat None as constant lr
+  lr_value = get_optimizer_algorithm_config(optimizer_config).lr
+  return LearningRate(constant=lr_value)
 
 
 def build_optimizer(model: TwhinModel, config: TwhinModelConfig):
@@ -43,9 +42,10 @@ def build_optimizer(model: TwhinModel, config: TwhinModelConfig):
     optim_factory=translation_optimizer_fn,
   )
 
-  lr_dict = {}
-  for table in config.embeddings.tables:
-    lr_dict[table.name] = _lr_from_config(table.optimizer)
+  lr_dict = {
+      table.name: _lr_from_config(table.optimizer)
+      for table in config.embeddings.tables
+  }
   lr_dict[TRANSLATION_OPT_KEY] = _lr_from_config(config.translation_optimizer)
 
   logging.info(f"***** LR dict: {lr_dict} *****")

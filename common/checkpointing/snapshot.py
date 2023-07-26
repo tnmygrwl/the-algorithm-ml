@@ -190,9 +190,8 @@ def get_checkpoint(
   if not checkpoints:
     if not missing_ok:
       raise Exception(f"No checkpoints found at {save_dir}")
-    else:
-      logging.info(f"No checkpoints found for restoration at {save_dir}.")
-      return ""
+    logging.info(f"No checkpoints found for restoration at {save_dir}.")
+    return ""
 
   if global_step is None:
     return checkpoints[-1]
@@ -214,7 +213,7 @@ def get_checkpoints(save_dir: str) -> List[str]:
   fs = infer_fs(save_dir)
   if fs.exists(save_dir):
     prefix = GCS_PREFIX if is_gcs_fs(fs) else ""
-    checkpoints = list(f"{prefix}{elem}" for elem in fs.ls(save_dir, detail=False))
+    checkpoints = [f"{prefix}{elem}" for elem in fs.ls(save_dir, detail=False)]
     # Only take checkpoints that were fully written.
     checkpoints = list(
       filter(

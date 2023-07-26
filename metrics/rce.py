@@ -46,9 +46,7 @@ def _binary_cross_entropy_with_clipping(
   predictions = torch.clamp(predictions, epsilon, 1.0 - epsilon)
   bce = -target * torch.log(predictions + epsilon)
   bce -= (1.0 - target) * torch.log(1.0 - predictions + epsilon)
-  if reduction == "mean":
-    return torch.mean(bce)
-  return bce
+  return torch.mean(bce) if reduction == "mean" else bce
 
 
 class RCE(torchmetrics.Metric):

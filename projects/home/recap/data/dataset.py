@@ -131,13 +131,8 @@ def get_datetimes(explicit_datetime_inputs):
   """Compute list datetime strings for train/validation data."""
   datetime_format = "%Y/%m/%d/%H"
   end = datetime.strptime(explicit_datetime_inputs.end_datetime, datetime_format)
-  dates = sorted(
-    [
-      (end - timedelta(hours=i + 1)).strftime(datetime_format)
-      for i in range(int(explicit_datetime_inputs.hours))
-    ]
-  )
-  return dates
+  return sorted([(end - timedelta(hours=i + 1)).strftime(datetime_format)
+                 for i in range(int(explicit_datetime_inputs.hours))])
 
 
 def get_explicit_datetime_inputs_files(explicit_datetime_inputs):
@@ -280,12 +275,9 @@ class RecapDataset(torch.utils.data.IterableDataset):
       # relying on the fact that weights default to 1.0 in `RecapBatch`
       # WARNING: Weights may still be added as a side effect of a preprocessor
       #          such as `DownsampleNegatives`.
-      should_add_weights = any(
-        [
-          task_cfg.pos_downsampling_rate != 1.0 or task_cfg.neg_downsampling_rate != 1.0
-          for task_cfg in data_config.tasks.values()
-        ]
-      )
+      should_add_weights = any(task_cfg.pos_downsampling_rate != 1.0
+                               or task_cfg.neg_downsampling_rate != 1.0
+                               for task_cfg in data_config.tasks.values())
       output_map_fn = _map_output_for_train_eval  # (features, labels)
 
     self._output_map_fn = functools.partial(

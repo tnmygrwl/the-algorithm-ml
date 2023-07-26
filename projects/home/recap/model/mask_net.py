@@ -59,16 +59,15 @@ class MaskNet(torch.nn.Module):
       for mask_block_config in mask_net_config.mask_blocks:
         mask_blocks.append(MaskBlock(mask_block_config, in_features, in_features))
         total_output_mask_blocks += mask_block_config.output_size
-      self._mask_blocks = torch.nn.ModuleList(mask_blocks)
     else:
       input_size = in_features
       for mask_block_config in mask_net_config.mask_blocks:
         mask_blocks.append(MaskBlock(mask_block_config, input_size, in_features))
         input_size = mask_block_config.output_size
 
-      self._mask_blocks = torch.nn.ModuleList(mask_blocks)
       total_output_mask_blocks = mask_block_config.output_size
 
+    self._mask_blocks = torch.nn.ModuleList(mask_blocks)
     if mask_net_config.mlp:
       self._dense_layers = mlp.Mlp(total_output_mask_blocks, mask_net_config.mlp)
       self.out_features = mask_net_config.mlp.layer_sizes[-1]
@@ -78,9 +77,10 @@ class MaskNet(torch.nn.Module):
 
   def forward(self, inputs: torch.Tensor):
     if self.mask_net_config.use_parallel:
-      mask_outputs = []
-      for mask_layer in self._mask_blocks:
-        mask_outputs.append(mask_layer(mask_input=inputs, net=inputs))
+      mask_outputs = [
+          mask_layer(mask_input=inputs, net=inputs)
+          for mask_layer in self._mask_blocks
+      ]
       # Share the outputs of the MaskBlocks.
       all_mask_outputs = torch.cat(mask_outputs, dim=1)
       output = (
